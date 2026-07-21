@@ -1,0 +1,75 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/memmove
+post-conditions:
+- name: Result
+  states:
+  - name: Expected
+    test-code: |
+      T_eq_int( memcmp( ctx->buf, "abc", 4 ), 0 );
+    text: |
+      The destination shall contain the copied bytes.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Input
+  states:
+  - name: Given
+    test-code: |
+      /* nothing to prepare */
+    text: |
+      While a memory area is moved.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->result = memmove( ctx->buf, "abc", 4 );
+  (void) ctx->result;
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member contains a pointer return value.
+  description: null
+  member: |
+    void *result
+- brief: |
+    This member provides a buffer.
+  description: null
+  member: |
+    char buf[ 4 ]
+- brief: |
+    This member contains the return value of the ${../if/memmove:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- string.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-memmove.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Result: Expected
+  pre-conditions:
+    Input:
+    - Given
+type: requirement

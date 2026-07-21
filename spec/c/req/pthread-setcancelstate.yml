@@ -1,0 +1,95 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-setcancelstate
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-setcancelstate:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, EINVAL );
+    text: |
+      The return value of ${../if/pthread-setcancelstate:/name} shall be equal to
+      ${../if/einval:/name}.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: State
+  states:
+  - name: Valid
+    test-code: |
+      ctx->state = PTHREAD_CANCEL_ENABLE;
+    text: |
+      While the ``state`` parameter is a supported value.
+  - name: Invalid
+    test-code: |
+      ctx->state = 0x7fffffff;
+    text: |
+      While the ``state`` parameter is not a supported value.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_setcancelstate( ctx->state, &ctx->old );
+test-brief: null
+test-cleanup: |
+  (void) pthread_setcancelstate( ctx->old, &ctx->old );
+test-context:
+- brief: |
+    This member specifies the ``state`` parameter.
+  description: null
+  member: |
+    int state
+- brief: |
+    This member provides the old state object.
+  description: null
+  member: |
+    int old
+- brief: |
+    This member contains the return value of the ${../if/pthread-setcancelstate:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-setcancelstate.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    State:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    State:
+    - Invalid
+type: requirement

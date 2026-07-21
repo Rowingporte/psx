@@ -1,0 +1,69 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/memcmp
+post-conditions:
+- name: Result
+  states:
+  - name: Expected
+    test-code: |
+      T_eq_int( ctx->result, 0 );
+    text: |
+      The return value shall be zero for equal areas.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Input
+  states:
+  - name: Given
+    test-code: |
+      /* nothing to prepare */
+    text: |
+      While both memory areas are equal.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->result = memcmp( "abc", "abc", 3 );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member contains the return value.
+  description: null
+  member: |
+    int result
+- brief: |
+    This member contains the return value of the ${../if/memcmp:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- string.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-memcmp.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Result: Expected
+  pre-conditions:
+    Input:
+    - Given
+type: requirement

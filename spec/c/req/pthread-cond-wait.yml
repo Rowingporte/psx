@@ -1,0 +1,101 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-cond-wait
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-cond-wait:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Signal
+  states:
+  - name: FromWorker
+    test-code: |
+      /* worker thread will issue the signal */
+    text: |
+      While a second thread signals the condition variable.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  T_eq_int( pthread_mutex_lock( &ctx->mutex ), 0 );
+  T_eq_int( pthread_create( &ctx->worker, NULL, CondWaitWorker, ctx ), 0 );
+  ctx->status = pthread_cond_wait( &ctx->cond, &ctx->mutex );
+  (void) pthread_mutex_unlock( &ctx->mutex );
+  (void) pthread_join( ctx->worker, NULL );
+test-brief: null
+test-cleanup: |
+  (void) pthread_cond_destroy( &ctx->cond );
+  (void) pthread_mutex_destroy( &ctx->mutex );
+test-context:
+- brief: |
+    This member provides the condition variable.
+  description: null
+  member: |
+    pthread_cond_t cond
+- brief: |
+    This member provides the mutex.
+  description: null
+  member: |
+    pthread_mutex_t mutex
+- brief: |
+    This member provides the worker thread.
+  description: null
+  member: |
+    pthread_t worker
+- brief: |
+    This member contains the return value of the ${../if/pthread-cond-wait:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup:
+  brief: null
+  code: |
+    pthread_cond_init( &ctx->cond, NULL );
+    pthread_mutex_init( &ctx->mutex, NULL );
+  description: null
+test-stop: null
+test-support: |
+  typedef ${.:/test-context-type} Context;
+
+  static void *CondWaitWorker( void *arg )
+  {
+    Context *ctx = arg;
+    (void) pthread_mutex_lock( &ctx->mutex );
+    (void) pthread_cond_signal( &ctx->cond );
+    (void) pthread_mutex_unlock( &ctx->mutex );
+    return NULL;
+  }
+test-target: testsuites/validation/tc-pthread-cond-wait.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Signal:
+    - FromWorker
+type: requirement

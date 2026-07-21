@@ -1,0 +1,78 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-equal
+post-conditions:
+- name: Result
+  states:
+  - name: Nonzero
+    test-code: |
+      T_true( ctx->status != 0 );
+    text: |
+      The return value of ${../if/pthread-equal:/name} shall be non-zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Ids
+  states:
+  - name: Same
+    test-code: |
+      ctx->t1 = pthread_self();
+      ctx->t2 = pthread_self();
+    text: |
+      While both parameters refer to the same thread.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_equal( ctx->t1, ctx->t2 );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the first thread ID.
+  description: null
+  member: |
+    pthread_t t1
+- brief: |
+    This member provides the second thread ID.
+  description: null
+  member: |
+    pthread_t t2
+- brief: |
+    This member contains the return value of the ${../if/pthread-equal:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-equal.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Result: Nonzero
+  pre-conditions:
+    Ids:
+    - Same
+type: requirement

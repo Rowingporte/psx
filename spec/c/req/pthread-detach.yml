@@ -1,0 +1,79 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-detach
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-detach:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Thread
+  states:
+  - name: Joinable
+    test-code: |
+      T_eq_int( pthread_create( &ctx->worker, NULL, LifeWorker, NULL ), 0 );
+    text: |
+      While the thread is joinable.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_detach( ctx->worker );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the worker thread.
+  description: null
+  member: |
+    pthread_t worker
+- brief: |
+    This member contains the return value of the ${../if/pthread-detach:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: |
+  typedef ${.:/test-context-type} Context;
+
+  static void *LifeWorker( void *arg )
+  {
+    (void) arg;
+    return (void *) (uintptr_t) 5;
+  }
+test-target: testsuites/validation/tc-pthread-detach.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Thread:
+    - Joinable
+type: requirement

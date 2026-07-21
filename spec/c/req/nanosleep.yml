@@ -1,0 +1,90 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/nanosleep
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/nanosleep:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, -1 );
+      T_eq_int( errno, EINVAL );
+    text: |
+      The ${../if/nanosleep:/name} call shall indicate the ${../if/einval:/name} error.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Request
+  states:
+  - name: Valid
+    test-code: |
+      ctx->req.tv_sec = 0;
+      ctx->req.tv_nsec = 1000000;
+    text: |
+      While the ``rqtp`` parameter specifies a valid time interval.
+  - name: BadNsec
+    test-code: |
+      ctx->req.tv_sec = 0;
+      ctx->req.tv_nsec = 1000000000;
+    text: |
+      While the nanoseconds value of the ``rqtp`` parameter is out of range.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = nanosleep( &ctx->req, NULL );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the ``rqtp`` object.
+  description: null
+  member: |
+    struct timespec req
+- brief: |
+    This member contains the return value of the ${../if/nanosleep:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- time.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-nanosleep.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Request:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Request:
+    - BadNsec
+type: requirement

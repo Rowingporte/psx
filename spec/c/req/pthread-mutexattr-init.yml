@@ -1,0 +1,95 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-mutexattr-init
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-mutexattr-init:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, EINVAL );
+    text: |
+      The return value of ${../if/pthread-mutexattr-init:/name} shall be equal to
+      ${../if/einval:/name}.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Attr
+  states:
+  - name: Valid
+    test-code: |
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter references an object.
+  - name: 'Null'
+    test-code: |
+      ctx->attr = NULL;
+    text: |
+      While the ``attr`` parameter is equal to NULL.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_mutexattr_init( ctx->attr );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) pthread_mutexattr_destroy( &ctx->attr_obj );
+  }
+test-context:
+- brief: |
+    This member provides the mutex attributes object.
+  description: null
+  member: |
+    pthread_mutexattr_t attr_obj
+- brief: |
+    This member specifies the ``attr`` parameter value.
+  description: null
+  member: |
+    pthread_mutexattr_t *attr
+- brief: |
+    This member contains the return value of the ${../if/pthread-mutexattr-init:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-mutexattr-init.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Attr:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Attr:
+    - 'Null'
+type: requirement

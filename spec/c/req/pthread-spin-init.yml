@@ -1,0 +1,78 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-spin-init
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-spin-init:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Lock
+  states:
+  - name: Valid
+    test-code: |
+      ctx->lock = &ctx->lock_obj;
+    text: |
+      While the ``lock`` parameter references an object.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_spin_init( ctx->lock, 0 );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) pthread_spin_destroy( &ctx->lock_obj );
+  }
+test-context:
+- brief: |
+    This member provides the spinlock object.
+  description: null
+  member: |
+    pthread_spinlock_t lock_obj
+- brief: |
+    This member specifies the ``lock`` parameter.
+  description: null
+  member: |
+    pthread_spinlock_t *lock
+- brief: |
+    This member contains the return value of the ${../if/pthread-spin-init:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-spin-init.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Lock:
+    - Valid
+type: requirement

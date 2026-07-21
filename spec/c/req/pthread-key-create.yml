@@ -1,0 +1,78 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-key-create
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-key-create:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Key
+  states:
+  - name: Valid
+    test-code: |
+      ctx->key_ptr = &ctx->key;
+    text: |
+      While the ``key`` parameter references an object.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_key_create( ctx->key_ptr, NULL );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) pthread_key_delete( ctx->key );
+  }
+test-context:
+- brief: |
+    This member provides the key object.
+  description: null
+  member: |
+    pthread_key_t key
+- brief: |
+    This member specifies the ``key`` parameter.
+  description: null
+  member: |
+    pthread_key_t *key_ptr
+- brief: |
+    This member contains the return value of the ${../if/pthread-key-create:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-key-create.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Key:
+    - Valid
+type: requirement

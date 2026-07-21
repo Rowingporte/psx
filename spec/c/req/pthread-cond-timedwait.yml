@@ -1,0 +1,92 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-cond-timedwait
+post-conditions:
+- name: Status
+  states:
+  - name: ETIMEDOUT
+    test-code: |
+      T_eq_int( ctx->status, ETIMEDOUT );
+    text: |
+      The return value of ${../if/pthread-cond-timedwait:/name} shall be equal to
+      ${../if/etimedout:/name}.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Deadline
+  states:
+  - name: Past
+    test-code: |
+      T_eq_int( clock_gettime( CLOCK_REALTIME, &ctx->abstime ), 0 );
+      ctx->abstime.tv_sec -= 1;
+    text: |
+      While the ``abstime`` parameter is in the past.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  T_eq_int( pthread_mutex_lock( &ctx->mutex ), 0 );
+  ctx->status = pthread_cond_timedwait( &ctx->cond, &ctx->mutex, &ctx->abstime );
+  (void) pthread_mutex_unlock( &ctx->mutex );
+test-brief: null
+test-cleanup: |
+  (void) pthread_cond_destroy( &ctx->cond );
+  (void) pthread_mutex_destroy( &ctx->mutex );
+test-context:
+- brief: |
+    This member provides the condition variable.
+  description: null
+  member: |
+    pthread_cond_t cond
+- brief: |
+    This member provides the mutex.
+  description: null
+  member: |
+    pthread_mutex_t mutex
+- brief: |
+    This member provides the abstime object.
+  description: null
+  member: |
+    struct timespec abstime
+- brief: |
+    This member contains the return value of the ${../if/pthread-cond-timedwait:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- time.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup:
+  brief: null
+  code: |
+    pthread_cond_init( &ctx->cond, NULL );
+    pthread_mutex_init( &ctx->mutex, NULL );
+  description: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-cond-timedwait.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: ETIMEDOUT
+  pre-conditions:
+    Deadline:
+    - Past
+type: requirement

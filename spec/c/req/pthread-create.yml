@@ -1,0 +1,82 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-create
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-create:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Arg
+  states:
+  - name: Valid
+    test-code: |
+      /* nothing to prepare */
+    text: |
+      While the parameters are valid.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_create( &ctx->worker, NULL, LifeWorker, NULL );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) pthread_join( ctx->worker, NULL );
+  }
+test-context:
+- brief: |
+    This member provides the created thread.
+  description: null
+  member: |
+    pthread_t worker
+- brief: |
+    This member contains the return value of the ${../if/pthread-create:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: |
+  typedef ${.:/test-context-type} Context;
+
+  static void *LifeWorker( void *arg )
+  {
+    (void) arg;
+    return (void *) (uintptr_t) 5;
+  }
+test-target: testsuites/validation/tc-pthread-create.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Arg:
+    - Valid
+type: requirement

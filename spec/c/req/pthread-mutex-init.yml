@@ -1,0 +1,95 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-mutex-init
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-mutex-init:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, EINVAL );
+    text: |
+      The return value of ${../if/pthread-mutex-init:/name} shall be equal to
+      ${../if/einval:/name}.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Mutex
+  states:
+  - name: Valid
+    test-code: |
+      ctx->mutex = &ctx->mutex_obj;
+    text: |
+      While the ``mutex`` parameter references an object.
+  - name: 'Null'
+    test-code: |
+      ctx->mutex = NULL;
+    text: |
+      While the ``mutex`` parameter is equal to NULL.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_mutex_init( ctx->mutex, NULL );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) pthread_mutex_destroy( &ctx->mutex_obj );
+  }
+test-context:
+- brief: |
+    This member provides the object referenced by the ``mutex`` parameter.
+  description: null
+  member: |
+    pthread_mutex_t mutex_obj
+- brief: |
+    This member specifies the ``mutex`` parameter value.
+  description: null
+  member: |
+    pthread_mutex_t *mutex
+- brief: |
+    This member contains the return value of the ${../if/pthread-mutex-init:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-mutex-init.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Mutex:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Mutex:
+    - 'Null'
+type: requirement

@@ -1,0 +1,83 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-getspecific
+post-conditions:
+- name: Value
+  states:
+  - name: Set
+    test-code: |
+      T_eq_ptr( ctx->result, &ctx->value );
+    text: |
+      The return value of ${../if/pthread-getspecific:/name} shall be the value which was
+      associated with the key for the calling thread.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Key
+  states:
+  - name: Set
+    test-code: |
+      T_eq_int( pthread_key_create( &ctx->key, NULL ), 0 );
+      T_eq_int( pthread_setspecific( ctx->key, &ctx->value ), 0 );
+    text: |
+      While a thread-specific value has been set for the key.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->result = pthread_getspecific( ctx->key );
+test-brief: null
+test-cleanup: |
+  (void) pthread_key_delete( ctx->key );
+test-context:
+- brief: |
+    This member provides the key object.
+  description: null
+  member: |
+    pthread_key_t key
+- brief: |
+    This member provides a value object.
+  description: null
+  member: |
+    int value
+- brief: |
+    This member contains the return value.
+  description: null
+  member: |
+    void *result
+- brief: |
+    This member contains the return value of the ${../if/pthread-getspecific:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-getspecific.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Value: Set
+  pre-conditions:
+    Key:
+    - Set
+type: requirement

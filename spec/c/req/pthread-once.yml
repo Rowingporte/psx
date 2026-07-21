@@ -1,0 +1,83 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-once
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+      T_eq_int( OnceCounter, 1 );
+    text: |
+      The return value of ${../if/pthread-once:/name} shall be zero and the
+      initialization routine shall have run once.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Control
+  states:
+  - name: Fresh
+    test-code: |
+      OnceCounter = 0;
+      ctx->control = (pthread_once_t) PTHREAD_ONCE_INIT;
+    text: |
+      While the once control object has not yet been used.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_once( &ctx->control, OnceInit );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the once control object.
+  description: null
+  member: |
+    pthread_once_t control
+- brief: |
+    This member contains the return value of the ${../if/pthread-once:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: |
+  typedef ${.:/test-context-type} Context;
+
+  static int OnceCounter;
+
+  static void OnceInit( void )
+  {
+    ++OnceCounter;
+  }
+test-target: testsuites/validation/tc-pthread-once.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Control:
+    - Fresh
+type: requirement

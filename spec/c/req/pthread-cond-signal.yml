@@ -1,0 +1,78 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-cond-signal
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-cond-signal:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Object
+  states:
+  - name: Init
+    test-code: |
+      pthread_cond_init( &ctx->obj_obj, NULL );
+      ctx->obj = &ctx->obj_obj;
+    text: |
+      While the object referenced by the first parameter is an
+      initialized object.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_cond_signal( ctx->obj );
+test-brief: null
+test-cleanup: |
+  (void) pthread_cond_destroy( &ctx->obj_obj );
+test-context:
+- brief: |
+    This member provides an object of type pthread_cond_t.
+  description: null
+  member: |
+    pthread_cond_t obj_obj
+- brief: |
+    This member specifies the object parameter.
+  description: null
+  member: |
+    pthread_cond_t *obj
+- brief: |
+    This member contains the return value of the ${../if/pthread-cond-signal:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-cond-signal.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Object:
+    - Init
+type: requirement

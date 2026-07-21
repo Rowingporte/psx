@@ -1,0 +1,133 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-mutexattr-getpshared
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/pthread-mutexattr-getpshared:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, EINVAL );
+    text: |
+      The return value of ${../if/pthread-mutexattr-getpshared:/name} shall be equal to
+      ${../if/einval:/name}.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Attr
+  states:
+  - name: Init
+    test-code: |
+      pthread_mutexattr_init( &ctx->attr_obj );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the object referenced by the ``attr`` parameter is an
+      initialized mutex attributes object.
+  - name: Uninit
+    test-code: |
+      memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the object referenced by the ``attr`` parameter is not an
+      initialized mutex attributes object.
+  test-epilogue: null
+  test-prologue: null
+- name: Value
+  states:
+  - name: Valid
+    test-code: |
+      ctx->value_ptr = &ctx->value;
+    text: |
+      While the object referenced by the output parameter is valid.
+  - name: 'Null'
+    test-code: |
+      ctx->value_ptr = NULL;
+    text: |
+      While the output parameter is equal to NULL.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->status = pthread_mutexattr_getpshared( ctx->attr, ctx->value_ptr );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the mutex attributes object.
+  description: null
+  member: |
+    pthread_mutexattr_t attr_obj
+- brief: |
+    This member specifies the ``attr`` parameter value.
+  description: null
+  member: |
+    pthread_mutexattr_t *attr
+- brief: |
+    This member provides the object for the output parameter.
+  description: null
+  member: |
+    int value
+- brief: |
+    This member specifies the output parameter value.
+  description: null
+  member: |
+    int *value_ptr
+- brief: |
+    This member contains the return value of the ${../if/pthread-mutexattr-getpshared:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-mutexattr-getpshared.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Attr:
+    - Init
+    Value:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Attr:
+    - Init
+    Value:
+    - 'Null'
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Attr:
+    - Uninit
+    Value:
+    - Valid
+    - 'Null'
+type: requirement

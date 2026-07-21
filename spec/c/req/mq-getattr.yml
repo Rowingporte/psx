@@ -1,0 +1,115 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/mq-getattr
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/mq-getattr:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Queue
+  states:
+  - name: Open
+    test-code: |
+      /* queue opened in setup */
+    text: |
+      While the message queue is open.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = mq_getattr( ctx->mqd, &ctx->oldattr );
+test-brief: null
+test-cleanup: |
+  (void) mq_close( ctx->mqd );
+  (void) mq_unlink( "/tq" );
+test-context:
+- brief: |
+    This member provides a message queue descriptor.
+  description: null
+  member: |
+    mqd_t mqd
+- brief: |
+    This member provides a message queue attributes object.
+  description: null
+  member: |
+    struct mq_attr attr
+- brief: |
+    This member provides an attributes output object.
+  description: null
+  member: |
+    struct mq_attr oldattr
+- brief: |
+    This member provides a message buffer.
+  description: null
+  member: |
+    char buf[ 8 ]
+- brief: |
+    This member provides a message priority object.
+  description: null
+  member: |
+    unsigned prio
+- brief: |
+    This member provides an abstime object.
+  description: null
+  member: |
+    struct timespec abstime
+- brief: |
+    This member provides a received byte count.
+  description: null
+  member: |
+    ssize_t rbytes
+- brief: |
+    This member contains the return value of the ${../if/mq-getattr:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- mqueue.h
+- fcntl.h
+- sys/stat.h
+- errno.h
+- string.h
+- time.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup:
+  brief: null
+  code: |
+    ctx->attr.mq_maxmsg = 1;
+    ctx->attr.mq_msgsize = 8;
+    (void) mq_unlink( "/tq" );
+    ctx->mqd = mq_open( "/tq", O_CREAT | O_RDWR, 0644, &ctx->attr );
+    T_true( ctx->mqd != (mqd_t) -1 );
+  description: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-mq-getattr.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Queue:
+    - Open
+type: requirement

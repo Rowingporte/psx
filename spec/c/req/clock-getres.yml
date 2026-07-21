@@ -1,0 +1,93 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/clock-getres
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/clock-getres:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, -1 );
+      T_eq_int( errno, EINVAL );
+    text: |
+      The ${../if/clock-getres:/name} call shall indicate the ${../if/einval:/name} error.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Clock
+  states:
+  - name: Valid
+    test-code: |
+      ctx->clock = CLOCK_REALTIME;
+    text: |
+      While the ``clock_id`` parameter identifies a supported clock.
+  - name: Invalid
+    test-code: |
+      ctx->clock = (clockid_t) 0x7fffffff;
+    text: |
+      While the ``clock_id`` parameter does not identify a supported clock.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = clock_getres( ctx->clock, &ctx->ts );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member specifies the ``clock_id`` parameter.
+  description: null
+  member: |
+    clockid_t clock
+- brief: |
+    This member provides a timespec object.
+  description: null
+  member: |
+    struct timespec ts
+- brief: |
+    This member contains the return value of the ${../if/clock-getres:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- time.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-clock-getres.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Clock:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Clock:
+    - Invalid
+type: requirement

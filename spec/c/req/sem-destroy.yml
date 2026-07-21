@@ -1,0 +1,77 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/sem-destroy
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/sem-destroy:/name} shall be equal to zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Sem
+  states:
+  - name: Init
+    test-code: |
+      T_eq_int( sem_init( &ctx->sem_obj, 0, 1 ), 0 );
+      ctx->sem = &ctx->sem_obj;
+    text: |
+      While the semaphore is initialized.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = sem_destroy( ctx->sem );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the semaphore object.
+  description: null
+  member: |
+    sem_t sem_obj
+- brief: |
+    This member specifies the ``sem`` parameter.
+  description: null
+  member: |
+    sem_t *sem
+- brief: |
+    This member contains the return value of the ${../if/sem-destroy:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- semaphore.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-sem-destroy.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Sem:
+    - Init
+type: requirement

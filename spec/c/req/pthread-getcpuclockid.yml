@@ -1,0 +1,75 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-getcpuclockid
+post-conditions:
+- name: Status
+  states:
+  - name: ENOSYS
+    test-code: |
+      T_eq_int( ctx->status, -1 );
+      T_eq_int( errno, ENOSYS );
+    text: |
+      The ${../if/pthread-getcpuclockid:/name} call shall indicate the ${../if/enosys:/name} error.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Thread
+  states:
+  - name: Self
+    test-code: |
+      /* use the calling thread */
+    text: |
+      While the thread is the calling thread.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = pthread_getcpuclockid( pthread_self(), &ctx->clock );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides a clock id object.
+  description: null
+  member: |
+    clockid_t clock
+- brief: |
+    This member contains the return value of the ${../if/pthread-getcpuclockid:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+- time.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-getcpuclockid.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: ENOSYS
+  pre-conditions:
+    Thread:
+    - Self
+type: requirement

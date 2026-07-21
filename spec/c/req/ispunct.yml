@@ -1,0 +1,90 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/ispunct
+post-conditions:
+- name: Result
+  states:
+  - name: Nonzero
+    test-code: |
+      T_true( ctx->result != 0 );
+    text: |
+      The return value of ${../if/ispunct:/name} shall be non-zero.
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->result, 0 );
+    text: |
+      The return value of ${../if/ispunct:/name} shall be zero.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Char
+  states:
+  - name: Match
+    test-code: |
+      ctx->ch = '.';
+    text: |
+      While the character belongs to the class.
+  - name: NoMatch
+    test-code: |
+      ctx->ch = 'a';
+    text: |
+      While the character does not belong to the class.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  ctx->result = ispunct( ctx->ch );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member specifies the character parameter.
+  description: null
+  member: |
+    int ch
+- brief: |
+    This member contains the return value.
+  description: null
+  member: |
+    int result
+- brief: |
+    This member contains the return value of the ${../if/ispunct:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- ctype.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-ispunct.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Result: Nonzero
+  pre-conditions:
+    Char:
+    - Match
+- enabled-by: true
+  post-conditions:
+    Result: Zero
+  pre-conditions:
+    Char:
+    - NoMatch
+type: requirement

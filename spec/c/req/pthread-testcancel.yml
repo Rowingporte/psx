@@ -1,0 +1,74 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-testcancel
+post-conditions:
+- name: Flow
+  states:
+  - name: Continues
+    test-code: |
+      T_true( ctx->reached );
+    text: |
+      The ${../if/pthread-testcancel:/name} call shall return without terminating the
+      thread.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Cancel
+  states:
+  - name: None
+    test-code: |
+      ctx->reached = false;
+    text: |
+      While there is no cancellation request pending.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  pthread_testcancel();
+  ctx->reached = true;
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member indicates the call returned.
+  description: null
+  member: |
+    bool reached
+- brief: |
+    This member contains the return value of the ${../if/pthread-testcancel:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-pthread-testcancel.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Flow: Continues
+  pre-conditions:
+    Cancel:
+    - None
+type: requirement

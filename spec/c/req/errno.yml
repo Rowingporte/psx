@@ -1,0 +1,64 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/errno
+post-conditions:
+- name: Value
+  states:
+  - name: Stored
+    test-code: |
+      T_eq_int( errno, EINVAL );
+    text: |
+      The ${../if/errno:/name} object shall hold the last stored value.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Write
+  states:
+  - name: Set
+    test-code: |
+      errno = 0;
+    text: |
+      While the ``errno`` object is written by the application.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = EINVAL;
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member contains the return value of the ${../if/errno:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-errno.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Value: Stored
+  pre-conditions:
+    Write:
+    - Set
+type: requirement

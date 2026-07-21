@@ -1,0 +1,96 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/sem_init
+post-conditions:
+- name: Status
+  states:
+  - name: Zero
+    test-code: |
+      T_eq_int( ctx->status, 0 );
+    text: |
+      The return value of ${../if/sem_init:/name} shall be equal to zero.
+  - name: EINVAL
+    test-code: |
+      T_eq_int( ctx->status, -1 );
+      T_eq_int( errno, EINVAL );
+    text: |
+      The ${../if/sem_init:/name} call shall indicate the ${../if/einval:/name} error.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Sem
+  states:
+  - name: Valid
+    test-code: |
+      ctx->sem = &ctx->sem_obj;
+    text: |
+      While the ``sem`` parameter references an object.
+  - name: 'Null'
+    test-code: |
+      ctx->sem = NULL;
+    text: |
+      While the ``sem`` parameter is equal to NULL.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  errno = 0;
+  ctx->status = sem_init( ctx->sem, 0, 1 );
+test-brief: null
+test-cleanup: |
+  if ( ctx->status == 0 ) {
+    (void) sem_destroy( &ctx->sem_obj );
+  }
+test-context:
+- brief: |
+    This member provides the semaphore object.
+  description: null
+  member: |
+    sem_t sem_obj
+- brief: |
+    This member specifies the ``sem`` parameter.
+  description: null
+  member: |
+    sem_t *sem
+- brief: |
+    This member contains the return value of the ${../if/sem_init:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- semaphore.h
+- errno.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: null
+test-target: testsuites/validation/tc-sem-init.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Status: Zero
+  pre-conditions:
+    Sem:
+    - Valid
+- enabled-by: true
+  post-conditions:
+    Status: EINVAL
+  pre-conditions:
+    Sem:
+    - 'Null'
+type: requirement

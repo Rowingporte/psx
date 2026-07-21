@@ -1,0 +1,85 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 Arno
+enabled-by: true
+functional-type: action
+links:
+- role: interface-function
+  uid: ../if/pthread-exit
+post-conditions:
+- name: Exit
+  states:
+  - name: Value
+    test-code: |
+      T_eq_uptr( (uintptr_t) ctx->retval, 7 );
+    text: |
+      The exit value shall be made available to a joining thread.
+  test-epilogue: null
+  test-prologue: null
+pre-conditions:
+- name: Thread
+  states:
+  - name: Exiting
+    test-code: |
+      T_eq_int( pthread_create( &ctx->worker, NULL, ExitWorker, NULL ), 0 );
+    text: |
+      While a thread calls the function to terminate.
+  test-epilogue: null
+  test-prologue: null
+rationale: null
+references: []
+requirement-type: functional
+skip-reasons: {}
+test-action: |
+  T_eq_int( pthread_join( ctx->worker, &ctx->retval ), 0 );
+test-brief: null
+test-cleanup: null
+test-context:
+- brief: |
+    This member provides the worker thread.
+  description: null
+  member: |
+    pthread_t worker
+- brief: |
+    This member provides the exit value.
+  description: null
+  member: |
+    void *retval
+- brief: |
+    This member contains the return value of the ${../if/pthread-exit:/name} call.
+  description: null
+  member: |
+    int status
+test-context-support: null
+test-description: null
+test-header: null
+test-includes:
+- pthread.h
+- errno.h
+- stdint.h
+- stdbool.h
+test-local-includes:
+- tx-support.h
+test-prepare: null
+test-setup: null
+test-stop: null
+test-support: |
+  typedef ${.:/test-context-type} Context;
+
+  static void *ExitWorker( void *arg )
+  {
+    (void) arg;
+    pthread_exit( (void *) (uintptr_t) 7 );
+    return NULL;
+  }
+test-target: testsuites/validation/tc-pthread-exit.c
+test-teardown: null
+text: ${.:text-template}
+transition-map:
+- enabled-by: true
+  post-conditions:
+    Exit: Value
+  pre-conditions:
+    Thread:
+    - Exiting
+type: requirement
