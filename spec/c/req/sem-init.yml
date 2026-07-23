@@ -5,72 +5,112 @@ enabled-by: true
 functional-type: action
 links:
 - role: interface-function
-  uid: ../if/sem_init
+  uid: ../if/sem-init
 post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/sem_init:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'The return value of ${../if/sem-init:/name} shall be equal to zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, -1 );
+    test-code: 'T_eq_int( ctx->status, -1 );
+
       T_eq_int( errno, EINVAL );
-    text: |
-      The ${../if/sem_init:/name} call shall indicate the ${../if/einval:/name} error.
+
+      '
+    text: 'The ${../if/sem-init:/name} call shall indicate the ${../if/einval:/name} error.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Sem
   states:
   - name: Valid
-    test-code: |
-      ctx->sem = &ctx->sem_obj;
-    text: |
-      While the ``sem`` parameter references an object.
+    test-code: 'ctx->sem = &ctx->sem_obj;
+
+      '
+    text: 'While the ``sem`` parameter references an object.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->sem = NULL;
-    text: |
-      While the ``sem`` parameter is equal to NULL.
+    test-code: 'ctx->sem = NULL;
+
+      '
+    text: 'While the ``sem`` parameter is equal to NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Value
+  states:
+  - name: Valid
+    test-code: 'ctx->value = 1;
+
+      '
+    text: 'While the ``value`` parameter is less than or equal to SEM_VALUE_MAX.
+
+      '
+  - name: TooLarge
+    test-code: 'ctx->value = (unsigned int) SEM_VALUE_MAX + 1u;
+
+      '
+    text: 'While the ``value`` parameter is greater than SEM_VALUE_MAX.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  errno = 0;
-  ctx->status = sem_init( ctx->sem, 0, 1 );
+test-action: 'errno = 0;
+
+  ctx->status = sem_init( ctx->sem, 0, ctx->value );
+
+  '
 test-brief: null
-test-cleanup: |
-  if ( ctx->status == 0 ) {
-    (void) sem_destroy( &ctx->sem_obj );
-  }
+test-cleanup: "if ( ctx->status == 0 ) {\n  (void) sem_destroy( &ctx->sem_obj );\n}\n"
 test-context:
-- brief: |
-    This member provides the semaphore object.
+- brief: 'This member provides an object of type sem_t.
+
+    '
   description: null
-  member: |
-    sem_t sem_obj
-- brief: |
-    This member specifies the ``sem`` parameter.
+  member: 'sem_t sem_obj
+
+    '
+- brief: 'This member specifies the ``sem`` parameter.
+
+    '
   description: null
-  member: |
-    sem_t *sem
-- brief: |
-    This member contains the return value of the ${../if/sem_init:/name} call.
+  member: 'sem_t *sem
+
+    '
+- brief: 'This member specifies the ``value`` parameter.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'unsigned int value
+
+    '
+- brief: 'This member contains the return value of the sem_init() call.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
 test-includes:
 - semaphore.h
 - errno.h
+- limits.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -82,15 +122,30 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
-  pre-conditions:
-    Sem:
-    - Valid
-- enabled-by: true
-  post-conditions:
-    Status: EINVAL
   pre-conditions:
     Sem:
     - 'Null'
+    Value:
+      applicable:
+        pre-conditions:
+          Sem:
+          - Valid
+  post-conditions:
+    Status: EINVAL
+- enabled-by: true
+  pre-conditions:
+    Sem:
+    - Valid
+    Value:
+    - Valid
+  post-conditions:
+    Status: Zero
+- enabled-by: true
+  pre-conditions:
+    Sem:
+    - Valid
+    Value:
+    - TooLarge
+  post-conditions:
+    Status: EINVAL
 type: requirement

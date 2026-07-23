@@ -10,66 +10,134 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-cond-init:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'The return value of ${../if/pthread-cond-init:/name} shall be equal to zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-cond-init:/name} shall be equal to
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'The return value of ${../if/pthread-cond-init:/name} shall be equal to
+
       ${../if/einval:/name}.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Object
   states:
   - name: Valid
-    test-code: |
-      ctx->obj = &ctx->obj_obj;
-    text: |
-      While the first parameter references an object.
+    test-code: 'ctx->obj = &ctx->obj_obj;
+
+      '
+    text: 'While the ``cond`` parameter references an object.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->obj = NULL;
-    text: |
-      While the first parameter is equal to NULL.
+    test-code: 'ctx->obj = NULL;
+
+      '
+    text: 'While the ``cond`` parameter is equal to NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Attr
+  states:
+  - name: 'Null'
+    test-code: 'ctx->attr = NULL;
+
+      '
+    text: 'While the ``attr`` parameter is equal to NULL.
+
+      '
+  - name: Default
+    test-code: '(void) pthread_condattr_init( &ctx->attr_obj );
+
+      ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'While the ``attr`` parameter references default attributes.
+
+      '
+  - name: Uninitialized
+    test-code: 'memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+
+      ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'While the ``attr`` parameter references uninitialized attributes.
+
+      '
+  - name: BadPshared
+    test-code: '(void) pthread_condattr_init( &ctx->attr_obj );
+
+      ctx->attr_obj.process_shared = 0x7fffffff;
+
+      ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'While the ``attr`` parameter specifies an invalid process-shared value.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_cond_init( ctx->obj, NULL );
+test-action: 'ctx->status = pthread_cond_init( ctx->obj, ctx->attr );
+
+  '
 test-brief: null
-test-cleanup: |
-  if ( ctx->status == 0 ) {
-    (void) pthread_cond_destroy( &ctx->obj_obj );
-  }
+test-cleanup: "if ( ctx->status == 0 ) {\n  (void) pthread_cond_destroy( &ctx->obj_obj );\n}\n"
 test-context:
-- brief: |
-    This member provides an object of type pthread_cond_t.
+- brief: 'This member provides an object of type pthread_cond_t.
+
+    '
   description: null
-  member: |
-    pthread_cond_t obj_obj
-- brief: |
-    This member specifies the object parameter.
+  member: 'pthread_cond_t obj_obj
+
+    '
+- brief: 'This member specifies the ``cond`` parameter.
+
+    '
   description: null
-  member: |
-    pthread_cond_t *obj
-- brief: |
-    This member contains the return value of the ${../if/pthread-cond-init:/name} call.
+  member: 'pthread_cond_t *obj
+
+    '
+- brief: 'This member provides an object of type pthread_condattr_t.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'pthread_condattr_t attr_obj
+
+    '
+- brief: 'This member specifies the ``attr`` parameter.
+
+    '
+  description: null
+  member: 'pthread_condattr_t *attr
+
+    '
+- brief: 'This member contains the return value of the pthread_cond_init() call.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
 test-includes:
 - pthread.h
 - errno.h
+- string.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -81,15 +149,32 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
-  pre-conditions:
-    Object:
-    - Valid
-- enabled-by: true
-  post-conditions:
-    Status: EINVAL
   pre-conditions:
     Object:
     - 'Null'
+    Attr:
+      applicable:
+        pre-conditions:
+          Object:
+          - Valid
+  post-conditions:
+    Status: EINVAL
+- enabled-by: true
+  pre-conditions:
+    Object:
+    - Valid
+    Attr:
+    - 'Null'
+    - Default
+  post-conditions:
+    Status: Zero
+- enabled-by: true
+  pre-conditions:
+    Object:
+    - Valid
+    Attr:
+    - Uninitialized
+    - BadPshared
+  post-conditions:
+    Status: EINVAL
 type: requirement

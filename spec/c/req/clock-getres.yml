@@ -10,58 +10,114 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/clock-getres:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'Shall return zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, -1 );
+    test-code: 'T_eq_int( ctx->status, -1 );
+
       T_eq_int( errno, EINVAL );
-    text: |
-      The ${../if/clock-getres:/name} call shall indicate the ${../if/einval:/name} error.
+
+      '
+    text: 'Shall fail with EINVAL.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
-- name: Clock
+- name: Res
   states:
   - name: Valid
-    test-code: |
-      ctx->clock = CLOCK_REALTIME;
-    text: |
-      While the ``clock_id`` parameter identifies a supported clock.
+    test-code: 'ctx->resp = &ctx->ts;
+
+      '
+    text: 'valid.
+
+      '
+  - name: 'Null'
+    test-code: 'ctx->resp = NULL;
+
+      '
+    text: 'NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Clock
+  states:
+  - name: Realtime
+    test-code: 'ctx->clock = CLOCK_REALTIME;
+
+      '
+    text: 'realtime.
+
+      '
+  - name: ProcessCpu
+    test-code: 'ctx->clock = CLOCK_PROCESS_CPUTIME_ID;
+
+      '
+    text: 'process cpu.
+
+      '
+  - name: ThreadCpu
+    test-code: 'ctx->clock = CLOCK_THREAD_CPUTIME_ID;
+
+      '
+    text: 'thread cpu.
+
+      '
   - name: Invalid
-    test-code: |
-      ctx->clock = (clockid_t) 0x7fffffff;
-    text: |
-      While the ``clock_id`` parameter does not identify a supported clock.
+    test-code: 'ctx->clock = (clockid_t) 0x7fffffff;
+
+      '
+    text: 'invalid.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  errno = 0;
-  ctx->status = clock_getres( ctx->clock, &ctx->ts );
+test-action: 'errno = 0;
+
+  ctx->status = clock_getres( ctx->clock, ctx->resp );
+
+  '
 test-brief: null
 test-cleanup: null
 test-context:
-- brief: |
-    This member specifies the ``clock_id`` parameter.
+- brief: 'clock.
+
+    '
   description: null
-  member: |
-    clockid_t clock
-- brief: |
-    This member provides a timespec object.
+  member: 'clockid_t clock
+
+    '
+- brief: 'ts.
+
+    '
   description: null
-  member: |
-    struct timespec ts
-- brief: |
-    This member contains the return value of the ${../if/clock-getres:/name} call.
+  member: 'struct timespec ts
+
+    '
+- brief: 'resp.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'struct timespec *resp
+
+    '
+- brief: 'status.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
@@ -79,15 +135,32 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
   pre-conditions:
+    Res:
+    - 'Null'
     Clock:
-    - Valid
-- enabled-by: true
+      applicable:
+        pre-conditions:
+          Res:
+          - Valid
   post-conditions:
     Status: EINVAL
+- enabled-by: true
   pre-conditions:
+    Res:
+    - Valid
+    Clock:
+    - Realtime
+    - ProcessCpu
+    - ThreadCpu
+  post-conditions:
+    Status: Zero
+- enabled-by: true
+  pre-conditions:
+    Res:
+    - Valid
     Clock:
     - Invalid
+  post-conditions:
+    Status: EINVAL
 type: requirement

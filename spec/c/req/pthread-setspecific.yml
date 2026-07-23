@@ -5,7 +5,7 @@ enabled-by: true
 functional-type: action
 links:
 - role: interface-function
-  uid: ../if/pthread_setspecific
+  uid: ../if/pthread-setspecific
 post-conditions:
 - name: Status
   states:
@@ -13,7 +13,7 @@ post-conditions:
     test-code: |
       T_eq_int( ctx->status, 0 );
     text: |
-      The return value of ${../if/pthread_setspecific:/name} shall be equal to zero.
+      The return value of ${../if/pthread-setspecific:/name} shall be equal to zero.
   test-epilogue: null
   test-prologue: null
 pre-conditions:
@@ -47,7 +47,7 @@ test-context:
   member: |
     int value
 - brief: |
-    This member contains the return value of the ${../if/pthread_setspecific:/name} call.
+    This member contains the return value of the ${../if/pthread-setspecific:/name} call.
   description: null
   member: |
     int status

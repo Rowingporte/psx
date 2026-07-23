@@ -10,89 +10,121 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-attr-getstackaddr:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'The return value shall be 0.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-attr-getstackaddr:/name} shall be equal to
-      ${../if/einval:/name}.
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'The return value shall be EINVAL.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Attr
   states:
   - name: Init
-    test-code: |
-      pthread_attr_init( &ctx->attr_obj );
+    test-code: 'pthread_attr_init( &ctx->attr_obj );
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the object referenced by the ``attr`` parameter is an
-      initialized attributes object.
+
+      '
+    text: 'While the ``attr`` parameter references an initialized attributes object.
+
+      '
+  - name: Uninitialized
+    test-code: 'memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+
+      ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'While the ``attr`` parameter references uninitialized attributes.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->attr = NULL;
-    text: |
-      While the ``attr`` parameter is equal to NULL.
+    test-code: 'ctx->attr = NULL;
+
+      '
+    text: 'While the ``attr`` parameter is equal to NULL.
+
+      '
   test-epilogue: null
   test-prologue: null
-- name: Value
+- name: Param
   states:
   - name: Valid
-    test-code: |
-      ctx->value_ptr = &ctx->value;
-    text: |
-      While the output parameter references an object.
+    test-code: 'ctx->param = &ctx->out;
+
+      '
+    text: 'While the second parameter references an object.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->value_ptr = NULL;
-    text: |
-      While the output parameter is equal to NULL.
+    test-code: 'ctx->param = NULL;
+
+      '
+    text: 'While the second parameter is equal to NULL.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_attr_getstackaddr( ctx->attr, ctx->value_ptr );
+test-action: 'ctx->status = pthread_attr_getstackaddr( ctx->attr, ctx->param );
+
+  '
 test-brief: null
 test-cleanup: null
 test-context:
-- brief: |
-    This member provides an object of type pthread_attr_t.
+- brief: 'attributes object.
+
+    '
   description: null
-  member: |
-    pthread_attr_t attr_obj
-- brief: |
-    This member specifies the ``attr`` parameter.
+  member: 'pthread_attr_t attr_obj
+
+    '
+- brief: 'attr parameter.
+
+    '
   description: null
-  member: |
-    pthread_attr_t *attr
-- brief: |
-    This member provides the output object.
+  member: 'pthread_attr_t *attr
+
+    '
+- brief: 'out.
+
+    '
   description: null
-  member: |
-    void * value
-- brief: |
-    This member specifies the output parameter.
+  member: 'void *out
+
+    '
+- brief: 'param.
+
+    '
   description: null
-  member: |
-    void * *value_ptr
-- brief: |
-    This member contains the return value of the ${../if/pthread-attr-getstackaddr:/name} call.
+  member: 'void **param
+
+    '
+- brief: 'return value.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
 test-includes:
 - pthread.h
 - errno.h
+- string.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -104,28 +136,31 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
+  pre-conditions:
+    Attr:
+    - Uninitialized
+    - 'Null'
+    Param:
+      applicable:
+        pre-conditions:
+          Attr:
+          - Init
+  post-conditions:
+    Status: EINVAL
+- enabled-by: true
+  pre-conditions:
+    Attr:
+    - Init
+    Param:
+    - Valid
   post-conditions:
     Status: Zero
+- enabled-by: true
   pre-conditions:
     Attr:
     - Init
-    Value:
-    - Valid
-- enabled-by: true
+    Param:
+    - 'Null'
   post-conditions:
     Status: EINVAL
-  pre-conditions:
-    Attr:
-    - Init
-    Value:
-    - 'Null'
-- enabled-by: true
-  post-conditions:
-    Status: EINVAL
-  pre-conditions:
-    Attr:
-    - 'Null'
-    Value:
-    - Valid
-    - 'Null'
 type: requirement

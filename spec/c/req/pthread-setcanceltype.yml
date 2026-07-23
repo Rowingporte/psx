@@ -10,66 +10,129 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-setcanceltype:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'Shall return zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-setcanceltype:/name} shall be equal to
-      ${../if/einval:/name}.
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'Shall fail with EINVAL.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
-- name: Type
+- name: Arg
+  states:
+  - name: Deferred
+    test-code: 'ctx->arg = PTHREAD_CANCEL_DEFERRED;
+
+      '
+    text: 'Deferred.
+
+      '
+  - name: Async
+    test-code: 'ctx->arg = PTHREAD_CANCEL_ASYNCHRONOUS;
+
+      '
+    text: 'Async.
+
+      '
+  - name: Invalid
+    test-code: 'ctx->arg = 0x7fffffff;
+
+      '
+    text: 'invalid.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Old
   states:
   - name: Valid
-    test-code: |
-      ctx->type = PTHREAD_CANCEL_DEFERRED;
-    text: |
-      While the ``type`` parameter is a supported value.
-  - name: Invalid
-    test-code: |
-      ctx->type = 0x7fffffff;
-    text: |
-      While the ``type`` parameter is not a supported value.
+    test-code: 'ctx->oldp = &ctx->old;
+
+      '
+    text: 'valid old ptr.
+
+      '
+  - name: 'Null'
+    test-code: 'ctx->oldp = NULL;
+
+      '
+    text: 'NULL old ptr.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Prior
+  states:
+  - name: Def
+    test-code: '(void) pthread_setcanceltype( PTHREAD_CANCEL_DEFERRED, NULL );
+
+      '
+    text: 'prior Def.
+
+      '
+  - name: Asy
+    test-code: '(void) pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, NULL );
+
+      '
+    text: 'prior Asy.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_setcanceltype( ctx->type, &ctx->old );
+test-action: 'ctx->status = pthread_setcanceltype( ctx->arg, ctx->oldp );
+
+  '
 test-brief: null
-test-cleanup: |
-  (void) pthread_setcanceltype( ctx->old, &ctx->old );
+test-cleanup: '(void) pthread_setcanceltype( PTHREAD_CANCEL_DEFERRED, NULL );
+
+  '
 test-context:
-- brief: |
-    This member specifies the ``type`` parameter.
+- brief: 'arg.
+
+    '
   description: null
-  member: |
-    int type
-- brief: |
-    This member provides the old type object.
+  member: 'int arg
+
+    '
+- brief: 'old.
+
+    '
   description: null
-  member: |
-    int old
-- brief: |
-    This member contains the return value of the ${../if/pthread-setcanceltype:/name} call.
+  member: 'int old
+
+    '
+- brief: 'oldp.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'int *oldp
+
+    '
+- brief: 'status.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
 test-includes:
 - pthread.h
 - errno.h
-- stdint.h
-- stdbool.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -81,15 +144,30 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
   pre-conditions:
-    Type:
-    - Valid
-- enabled-by: true
+    Arg:
+    - Invalid
+    Old:
+      applicable:
+        pre-conditions:
+          Arg: &id001
+          - Deferred
+          - Async
+    Prior:
+      applicable:
+        pre-conditions:
+          Arg: *id001
   post-conditions:
     Status: EINVAL
+- enabled-by: true
   pre-conditions:
-    Type:
-    - Invalid
+    Arg: *id001
+    Old:
+    - Valid
+    - 'Null'
+    Prior:
+    - Def
+    - Asy
+  post-conditions:
+    Status: Zero
 type: requirement

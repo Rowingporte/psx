@@ -10,60 +10,103 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-getattr-np:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'Shall return zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-getattr-np:/name} shall be equal to
-      ${../if/einval:/name}.
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'Shall fail with EINVAL.
+
+      '
+  - name: ESRCH
+    test-code: 'T_eq_int( ctx->status, ESRCH );
+
+      '
+    text: 'Shall fail with ESRCH.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Attr
   states:
   - name: Valid
-    test-code: |
-      ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter references an object.
+    test-code: 'ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'valid.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->attr = NULL;
-    text: |
-      While the ``attr`` parameter is equal to NULL.
+    test-code: 'ctx->attr = NULL;
+
+      '
+    text: 'NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Thread
+  states:
+  - name: Self
+    test-code: 'ctx->thread = pthread_self();
+
+      '
+    text: 'self.
+
+      '
+  - name: Invalid
+    test-code: 'ctx->thread = (pthread_t) 0xdeadbeef;
+
+      '
+    text: 'invalid.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_getattr_np( pthread_self(), ctx->attr );
+test-action: 'ctx->status = pthread_getattr_np( ctx->thread, ctx->attr );
+
+  '
 test-brief: null
-test-cleanup: |
-  if ( ctx->status == 0 ) {
-    (void) pthread_attr_destroy( &ctx->attr_obj );
-  }
+test-cleanup: null
 test-context:
-- brief: |
-    This member provides the attributes object.
+- brief: 'attr obj.
+
+    '
   description: null
-  member: |
-    pthread_attr_t attr_obj
-- brief: |
-    This member specifies the ``attr`` parameter.
+  member: 'pthread_attr_t attr_obj
+
+    '
+- brief: 'attr.
+
+    '
   description: null
-  member: |
-    pthread_attr_t *attr
-- brief: |
-    This member contains the return value of the ${../if/pthread-getattr-np:/name} call.
+  member: 'pthread_attr_t *attr
+
+    '
+- brief: 'thread.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'pthread_t thread
+
+    '
+- brief: 'status.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
@@ -81,15 +124,30 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
-  pre-conditions:
-    Attr:
-    - Valid
-- enabled-by: true
-  post-conditions:
-    Status: EINVAL
   pre-conditions:
     Attr:
     - 'Null'
+    Thread:
+      applicable:
+        pre-conditions:
+          Attr:
+          - Valid
+  post-conditions:
+    Status: EINVAL
+- enabled-by: true
+  pre-conditions:
+    Attr:
+    - Valid
+    Thread:
+    - Invalid
+  post-conditions:
+    Status: ESRCH
+- enabled-by: true
+  pre-conditions:
+    Attr:
+    - Valid
+    Thread:
+    - Self
+  post-conditions:
+    Status: Zero
 type: requirement

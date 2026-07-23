@@ -9,47 +9,125 @@ links:
 post-conditions:
 - name: Result
   states:
-  - name: Expected
-    test-code: |
-      T_true( ctx->result > 0 );
-    text: |
-      The return value shall be the positive clock tick rate.
+  - name: Positive
+    test-code: 'T_ge_long( ctx->result, 0 );
+
+      '
+    text: 'The return value shall not indicate an error.
+
+      '
+  - name: Invalid
+    test-code: 'T_eq_long( ctx->result, -1 );
+
+      T_eq_int( errno, EINVAL );
+
+      '
+    text: 'The call shall fail with EINVAL.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
-- name: Input
+- name: Name
   states:
-  - name: Given
-    test-code: |
-      /* nothing to prepare */
-    text: |
-      While the clock tick configuration value is requested.
+  - name: ClkTck
+    test-code: 'ctx->name = _SC_CLK_TCK;
+
+      '
+    text: 'While ``name`` is ClkTck.
+
+      '
+  - name: OpenMax
+    test-code: 'ctx->name = _SC_OPEN_MAX;
+
+      '
+    text: 'While ``name`` is OpenMax.
+
+      '
+  - name: GetpwR
+    test-code: 'ctx->name = _SC_GETPW_R_SIZE_MAX;
+
+      '
+    text: 'While ``name`` is GetpwR.
+
+      '
+  - name: Pagesize
+    test-code: 'ctx->name = _SC_PAGESIZE;
+
+      '
+    text: 'While ``name`` is Pagesize.
+
+      '
+  - name: Symloop
+    test-code: 'ctx->name = _SC_SYMLOOP_MAX;
+
+      '
+    text: 'While ``name`` is Symloop.
+
+      '
+  - name: NprocConf
+    test-code: 'ctx->name = _SC_NPROCESSORS_CONF;
+
+      '
+    text: 'While ``name`` is NprocConf.
+
+      '
+  - name: NprocOnln
+    test-code: 'ctx->name = _SC_NPROCESSORS_ONLN;
+
+      '
+    text: 'While ``name`` is NprocOnln.
+
+      '
+  - name: Posix26
+    test-code: 'ctx->name = _SC_POSIX_26_VERSION;
+
+      '
+    text: 'While ``name`` is Posix26.
+
+      '
+  - name: Invalid
+    test-code: 'ctx->name = 0x7fffffff;
+
+      '
+    text: 'While ``name`` is Invalid.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->result = sysconf( _SC_CLK_TCK );
+test-action: 'errno = 0;
+
+  ctx->result = sysconf( ctx->name );
+
+  '
 test-brief: null
 test-cleanup: null
 test-context:
-- brief: |
-    This member contains the return value.
+- brief: 'name parameter.
+
+    '
   description: null
-  member: |
-    long result
-- brief: |
-    This member contains the return value of the ${../if/sysconf:/name} call.
+  member: 'int name
+
+    '
+- brief: 'return value.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'long result
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
 test-includes:
 - unistd.h
+- errno.h
+- limits.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -61,9 +139,22 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Result: Expected
   pre-conditions:
-    Input:
-    - Given
+    Name:
+    - ClkTck
+    - OpenMax
+    - GetpwR
+    - Pagesize
+    - Symloop
+    - NprocConf
+    - NprocOnln
+    - Posix26
+  post-conditions:
+    Result: Positive
+- enabled-by: true
+  pre-conditions:
+    Name:
+    - Invalid
+  post-conditions:
+    Result: Invalid
 type: requirement

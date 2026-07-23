@@ -10,44 +10,102 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
+    test-code: 'T_eq_int( ctx->status, 0 );
+
       T_eq_int( OnceCounter, 1 );
-    text: |
-      The return value of ${../if/pthread-once:/name} shall be zero and the
-      initialization routine shall have run once.
+
+      '
+    text: 'The return value shall be zero and the routine shall have run once.
+
+      '
+  - name: EINVAL
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'The return value shall be EINVAL.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Control
   states:
   - name: Fresh
-    test-code: |
-      OnceCounter = 0;
+    test-code: 'OnceCounter = 0;
+
       ctx->control = (pthread_once_t) PTHREAD_ONCE_INIT;
-    text: |
-      While the once control object has not yet been used.
+
+      ctx->once = &ctx->control;
+
+      '
+    text: 'While the once control object is fresh.
+
+      '
+  - name: 'Null'
+    test-code: 'ctx->once = NULL;
+
+      '
+    text: 'While the ``once_control`` parameter is NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Routine
+  states:
+  - name: Valid
+    test-code: 'ctx->init = OnceInit;
+
+      '
+    text: 'While the ``init_routine`` parameter references a function.
+
+      '
+  - name: 'Null'
+    test-code: 'ctx->init = NULL;
+
+      '
+    text: 'While the ``init_routine`` parameter is NULL.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_once( &ctx->control, OnceInit );
+test-action: 'ctx->status = pthread_once( ctx->once, ctx->init );
+
+  '
 test-brief: null
 test-cleanup: null
 test-context:
-- brief: |
-    This member provides the once control object.
+- brief: 'once control object.
+
+    '
   description: null
-  member: |
-    pthread_once_t control
-- brief: |
-    This member contains the return value of the ${../if/pthread-once:/name} call.
+  member: 'pthread_once_t control
+
+    '
+- brief: 'once parameter.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'pthread_once_t *once
+
+    '
+- brief: 'init_routine parameter.
+
+    '
+  description: null
+  member: 'void ( *init )( void )
+
+    '
+- brief: 'return value.
+
+    '
+  description: null
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
@@ -61,23 +119,35 @@ test-local-includes:
 test-prepare: null
 test-setup: null
 test-stop: null
-test-support: |
-  typedef ${.:/test-context-type} Context;
-
-  static int OnceCounter;
-
-  static void OnceInit( void )
-  {
-    ++OnceCounter;
-  }
+test-support: "typedef ${.:/test-context-type} Context;\n\nstatic int OnceCounter;\n\nstatic void OnceInit(\
+  \ void )\n{\n  ++OnceCounter;\n}\n"
 test-target: testsuites/validation/tc-pthread-once.c
 test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
   pre-conditions:
     Control:
     - Fresh
+    Routine:
+    - Valid
+  post-conditions:
+    Status: Zero
+- enabled-by: true
+  pre-conditions:
+    Control:
+    - Fresh
+    Routine:
+    - 'Null'
+  post-conditions:
+    Status: EINVAL
+- enabled-by: true
+  pre-conditions:
+    Control:
+    - 'Null'
+    Routine:
+    - Valid
+    - 'Null'
+  post-conditions:
+    Status: EINVAL
 type: requirement

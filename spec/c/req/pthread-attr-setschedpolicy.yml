@@ -10,66 +10,135 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-attr-setschedpolicy:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'The return value of ${../if/pthread-attr-setschedpolicy:/name} shall be equal to 0.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-attr-setschedpolicy:/name} shall be equal to
-      ${../if/einval:/name}.
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'The return value of ${../if/pthread-attr-setschedpolicy:/name} shall be equal to EINVAL.
+
+      '
+  - name: ENOTSUP
+    test-code: 'T_eq_int( ctx->status, ENOTSUP );
+
+      '
+    text: 'The return value of ${../if/pthread-attr-setschedpolicy:/name} shall be equal to ENOTSUP.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Attr
   states:
   - name: Init
-    test-code: |
-      pthread_attr_init( &ctx->attr_obj );
+    test-code: 'pthread_attr_init( &ctx->attr_obj );
+
       ctx->attr = &ctx->attr_obj;
-      ctx->newval = SCHED_FIFO;
-    text: |
-      While the object referenced by the ``attr`` parameter is an
-      initialized attributes object.
+
+      '
+    text: 'While the object referenced by the ``attr`` parameter is an initialized attributes object.
+
+      '
+  - name: Uninitialized
+    test-code: 'memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+
+      ctx->attr = &ctx->attr_obj;
+
+      '
+    text: 'While the object referenced by the ``attr`` parameter is uninitialized.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->attr = NULL;
-      ctx->newval = SCHED_FIFO;
-    text: |
-      While the ``attr`` parameter is equal to NULL.
+    test-code: 'ctx->attr = NULL;
+
+      '
+    text: 'While the ``attr`` parameter is equal to NULL.
+
+      '
+  test-epilogue: null
+  test-prologue: null
+- name: Value
+  states:
+  - name: Other
+    test-code: 'ctx->newval = SCHED_OTHER;
+
+      '
+    text: 'While the ``policy`` parameter is Other.
+
+      '
+  - name: Fifo
+    test-code: 'ctx->newval = SCHED_FIFO;
+
+      '
+    text: 'While the ``policy`` parameter is Fifo.
+
+      '
+  - name: Rr
+    test-code: 'ctx->newval = SCHED_RR;
+
+      '
+    text: 'While the ``policy`` parameter is Rr.
+
+      '
+  - name: Sporadic
+    test-code: 'ctx->newval = SCHED_SPORADIC;
+
+      '
+    text: 'While the ``policy`` parameter is Sporadic.
+
+      '
+  - name: Invalid
+    test-code: 'ctx->newval = 0x7fffffff;
+
+      '
+    text: 'While the ``policy`` parameter is Invalid.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_attr_setschedpolicy( ctx->attr, ctx->newval );
+test-action: 'ctx->status = pthread_attr_setschedpolicy( ctx->attr, ctx->newval );
+
+  '
 test-brief: null
 test-cleanup: null
 test-context:
-- brief: |
-    This member provides an object of type pthread_attr_t.
+- brief: 'This member provides an object of type pthread_attr_t.
+
+    '
   description: null
-  member: |
-    pthread_attr_t attr_obj
-- brief: |
-    This member specifies the ``attr`` parameter.
+  member: 'pthread_attr_t attr_obj
+
+    '
+- brief: 'This member specifies the ``attr`` parameter.
+
+    '
   description: null
-  member: |
-    pthread_attr_t *attr
-- brief: |
-    This member specifies the value parameter.
+  member: 'pthread_attr_t *attr
+
+    '
+- brief: 'This member specifies the value parameter.
+
+    '
   description: null
-  member: |
-    int newval
-- brief: |
-    This member contains the return value of the ${../if/pthread-attr-setschedpolicy:/name} call.
+  member: 'int newval
+
+    '
+- brief: 'This member contains the return value of the ${../if/pthread-attr-setschedpolicy:/name} call.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
@@ -77,6 +146,7 @@ test-includes:
 - pthread.h
 - sched.h
 - errno.h
+- string.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -88,15 +158,34 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
+  pre-conditions:
+    Attr:
+    - Uninitialized
+    - 'Null'
+    Value:
+      applicable:
+        pre-conditions:
+          Attr:
+          - Init
   post-conditions:
-    Status: Zero
+    Status: EINVAL
+- enabled-by: true
   pre-conditions:
     Attr:
     - Init
-- enabled-by: true
+    Value:
+    - Other
+    - Fifo
+    - Rr
+    - Sporadic
   post-conditions:
-    Status: EINVAL
+    Status: Zero
+- enabled-by: true
   pre-conditions:
     Attr:
-    - 'Null'
+    - Init
+    Value:
+    - Invalid
+  post-conditions:
+    Status: ENOTSUP
 type: requirement

@@ -55,6 +55,19 @@ pre-conditions:
     text: |
       While the object referenced by the ``mutex`` parameter is not an
       initialized mutex.
+  - name: 'Null'
+    test-code: |
+      pthread_mutex_init( &ctx->mutex_obj, NULL );
+      ctx->mutex = NULL;
+    text: |
+      While the ``mutex`` parameter is equal to NULL.
+  - name: StaticInit
+    test-code: |
+      ctx->mutex_obj = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
+      ctx->mutex = &ctx->mutex_obj;
+    text: |
+      While the object referenced by the ``mutex`` parameter is a statically
+      initialized mutex which has not yet been used.
   test-epilogue: null
   test-prologue: null
 rationale: null
@@ -108,6 +121,7 @@ transition-map:
   pre-conditions:
     Mutex:
     - Initialized
+    - StaticInit
 - enabled-by: true
   post-conditions:
     Status: EBUSY
@@ -120,4 +134,5 @@ transition-map:
   pre-conditions:
     Mutex:
     - Invalid
+    - 'Null'
 type: requirement

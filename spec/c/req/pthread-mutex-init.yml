@@ -37,12 +37,90 @@ pre-conditions:
       While the ``mutex`` parameter is equal to NULL.
   test-epilogue: null
   test-prologue: null
+- name: Attr
+  states:
+  - name: 'Null'
+    test-code: |
+      ctx->attr = NULL;
+    text: |
+      While the ``attr`` parameter is equal to NULL so that the default mutex
+      attributes are used.
+  - name: Default
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter references initialized default mutex
+      attributes.
+  - name: Inherit
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      (void) pthread_mutexattr_setprotocol(
+        &ctx->attr_obj, PTHREAD_PRIO_INHERIT );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter selects the priority inheritance protocol.
+  - name: Protect
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      (void) pthread_mutexattr_setprotocol(
+        &ctx->attr_obj, PTHREAD_PRIO_PROTECT );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter selects the priority ceiling protocol.
+  - name: Recursive
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      (void) pthread_mutexattr_settype(
+        &ctx->attr_obj, PTHREAD_MUTEX_RECURSIVE );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter selects the recursive mutex type.
+  - name: Uninitialized
+    test-code: |
+      memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter references an uninitialized attributes object.
+  - name: BadPshared
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      ctx->attr_obj.process_shared = 0x7fffffff;
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter specifies an invalid process-shared value.
+  - name: BadProtocol
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      ctx->attr_obj.protocol = 0x7fffffff;
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter specifies an invalid protocol value.
+  - name: BadType
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      ctx->attr_obj.type = 0x7fffffff;
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter specifies an invalid mutex type value.
+  - name: BadCeiling
+    test-code: |
+      (void) pthread_mutexattr_init( &ctx->attr_obj );
+      (void) pthread_mutexattr_setprotocol(
+        &ctx->attr_obj, PTHREAD_PRIO_PROTECT );
+      ctx->attr_obj.prio_ceiling = 0;
+      ctx->attr = &ctx->attr_obj;
+    text: |
+      While the ``attr`` parameter selects the priority ceiling protocol with a
+      priority ceiling below the minimum valid value.
+  test-epilogue: null
+  test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
 test-action: |
-  ctx->status = pthread_mutex_init( ctx->mutex, NULL );
+  ctx->status = pthread_mutex_init( ctx->mutex, ctx->attr );
 test-brief: null
 test-cleanup: |
   if ( ctx->status == 0 ) {
@@ -60,6 +138,16 @@ test-context:
   member: |
     pthread_mutex_t *mutex
 - brief: |
+    This member provides the object referenced by the ``attr`` parameter.
+  description: null
+  member: |
+    pthread_mutexattr_t attr_obj
+- brief: |
+    This member specifies the ``attr`` parameter value.
+  description: null
+  member: |
+    pthread_mutexattr_t *attr
+- brief: |
     This member contains the return value of the ${../if/pthread-mutex-init:/name} call.
   description: null
   member: |
@@ -70,6 +158,7 @@ test-header: null
 test-includes:
 - pthread.h
 - errno.h
+- string.h
 test-local-includes:
 - tx-support.h
 test-prepare: null
@@ -81,15 +170,28 @@ test-teardown: null
 text: ${.:text-template}
 transition-map:
 - enabled-by: true
-  post-conditions:
-    Status: Zero
   pre-conditions:
-    Mutex:
-    - Valid
-- enabled-by: true
+    Mutex: all
+    Attr:
+      applicable:
+        pre-conditions:
+          Mutex:
+          - Valid
   post-conditions:
-    Status: EINVAL
-  pre-conditions:
-    Mutex:
-    - 'Null'
+    Status:
+    - if:
+        pre-conditions:
+          Mutex:
+          - 'Null'
+      then: EINVAL
+    - if:
+        pre-conditions:
+          Attr:
+          - Uninitialized
+          - BadPshared
+          - BadProtocol
+          - BadType
+          - BadCeiling
+      then: EINVAL
+    - else: Zero
 type: requirement
