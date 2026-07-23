@@ -10,148 +10,197 @@ post-conditions:
 - name: Status
   states:
   - name: Zero
-    test-code: |
-      T_eq_int( ctx->status, 0 );
-    text: |
-      The return value of ${../if/pthread-mutex-init:/name} shall be equal to zero.
+    test-code: 'T_eq_int( ctx->status, 0 );
+
+      '
+    text: 'The return value of ${../if/pthread-mutex-init:/name} shall be equal to zero.
+
+      '
   - name: EINVAL
-    test-code: |
-      T_eq_int( ctx->status, EINVAL );
-    text: |
-      The return value of ${../if/pthread-mutex-init:/name} shall be equal to
+    test-code: 'T_eq_int( ctx->status, EINVAL );
+
+      '
+    text: 'The return value of ${../if/pthread-mutex-init:/name} shall be equal to
+
       ${../if/einval:/name}.
+
+      '
   test-epilogue: null
   test-prologue: null
 pre-conditions:
 - name: Mutex
   states:
   - name: Valid
-    test-code: |
-      ctx->mutex = &ctx->mutex_obj;
-    text: |
-      While the ``mutex`` parameter references an object.
+    test-code: 'ctx->mutex = &ctx->mutex_obj;
+
+      '
+    text: 'While the ``mutex`` parameter references an object.
+
+      '
   - name: 'Null'
-    test-code: |
-      ctx->mutex = NULL;
-    text: |
-      While the ``mutex`` parameter is equal to NULL.
+    test-code: 'ctx->mutex = NULL;
+
+      '
+    text: 'While the ``mutex`` parameter is equal to NULL.
+
+      '
   test-epilogue: null
   test-prologue: null
 - name: Attr
   states:
   - name: 'Null'
-    test-code: |
-      ctx->attr = NULL;
-    text: |
-      While the ``attr`` parameter is equal to NULL so that the default mutex
+    test-code: 'ctx->attr = NULL;
+
+      '
+    text: 'While the ``attr`` parameter is equal to NULL so that the default mutex
+
       attributes are used.
+
+      '
   - name: Default
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
+    test-code: '(void) pthread_mutexattr_init( &ctx->attr_obj );
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter references initialized default mutex
+
+      '
+    text: 'While the ``attr`` parameter references initialized default mutex
+
       attributes.
+
+      '
   - name: Inherit
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
-      (void) pthread_mutexattr_setprotocol(
-        &ctx->attr_obj, PTHREAD_PRIO_INHERIT );
-      ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter selects the priority inheritance protocol.
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_setprotocol(\n\
+      \  &ctx->attr_obj, PTHREAD_PRIO_INHERIT );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` parameter selects the priority inheritance protocol.
+
+      '
   - name: Protect
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
-      (void) pthread_mutexattr_setprotocol(
-        &ctx->attr_obj, PTHREAD_PRIO_PROTECT );
-      ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter selects the priority ceiling protocol.
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_setprotocol(\n\
+      \  &ctx->attr_obj, PTHREAD_PRIO_PROTECT );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` parameter selects the priority ceiling protocol.
+
+      '
   - name: Recursive
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
-      (void) pthread_mutexattr_settype(
-        &ctx->attr_obj, PTHREAD_MUTEX_RECURSIVE );
-      ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter selects the recursive mutex type.
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_settype(\n\
+      \  &ctx->attr_obj, PTHREAD_MUTEX_RECURSIVE );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` parameter selects the recursive mutex type.
+
+      '
+  - name: NormalType
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_settype(\n\
+      \  &ctx->attr_obj, PTHREAD_MUTEX_NORMAL );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` selects the NormalType mutex type.
+
+      '
+  - name: ErrorCheck
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_settype(\n\
+      \  &ctx->attr_obj, PTHREAD_MUTEX_ERRORCHECK );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` selects the ErrorCheck mutex type.
+
+      '
+  - name: DefaultType
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_settype(\n\
+      \  &ctx->attr_obj, PTHREAD_MUTEX_DEFAULT );\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` selects the DefaultType mutex type.
+
+      '
   - name: Uninitialized
-    test-code: |
-      memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+    test-code: 'memset( &ctx->attr_obj, 0, sizeof( ctx->attr_obj ) );
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter references an uninitialized attributes object.
+
+      '
+    text: 'While the ``attr`` parameter references an uninitialized attributes object.
+
+      '
   - name: BadPshared
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
+    test-code: '(void) pthread_mutexattr_init( &ctx->attr_obj );
+
       ctx->attr_obj.process_shared = 0x7fffffff;
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter specifies an invalid process-shared value.
+
+      '
+    text: 'While the ``attr`` parameter specifies an invalid process-shared value.
+
+      '
   - name: BadProtocol
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
+    test-code: '(void) pthread_mutexattr_init( &ctx->attr_obj );
+
       ctx->attr_obj.protocol = 0x7fffffff;
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter specifies an invalid protocol value.
+
+      '
+    text: 'While the ``attr`` parameter specifies an invalid protocol value.
+
+      '
   - name: BadType
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
+    test-code: '(void) pthread_mutexattr_init( &ctx->attr_obj );
+
       ctx->attr_obj.type = 0x7fffffff;
+
       ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter specifies an invalid mutex type value.
+
+      '
+    text: 'While the ``attr`` parameter specifies an invalid mutex type value.
+
+      '
   - name: BadCeiling
-    test-code: |
-      (void) pthread_mutexattr_init( &ctx->attr_obj );
-      (void) pthread_mutexattr_setprotocol(
-        &ctx->attr_obj, PTHREAD_PRIO_PROTECT );
-      ctx->attr_obj.prio_ceiling = 0;
-      ctx->attr = &ctx->attr_obj;
-    text: |
-      While the ``attr`` parameter selects the priority ceiling protocol with a
+    test-code: "(void) pthread_mutexattr_init( &ctx->attr_obj );\n(void) pthread_mutexattr_setprotocol(\n\
+      \  &ctx->attr_obj, PTHREAD_PRIO_PROTECT );\nctx->attr_obj.prio_ceiling = 0;\nctx->attr = &ctx->attr_obj;\n"
+    text: 'While the ``attr`` parameter selects the priority ceiling protocol with a
+
       priority ceiling below the minimum valid value.
+
+      '
   test-epilogue: null
   test-prologue: null
 rationale: null
 references: []
 requirement-type: functional
 skip-reasons: {}
-test-action: |
-  ctx->status = pthread_mutex_init( ctx->mutex, ctx->attr );
+test-action: 'ctx->status = pthread_mutex_init( ctx->mutex, ctx->attr );
+
+  '
 test-brief: null
-test-cleanup: |
-  if ( ctx->status == 0 ) {
-    (void) pthread_mutex_destroy( &ctx->mutex_obj );
-  }
+test-cleanup: "if ( ctx->status == 0 ) {\n  (void) pthread_mutex_destroy( &ctx->mutex_obj );\n}\n"
 test-context:
-- brief: |
-    This member provides the object referenced by the ``mutex`` parameter.
+- brief: 'This member provides the object referenced by the ``mutex`` parameter.
+
+    '
   description: null
-  member: |
-    pthread_mutex_t mutex_obj
-- brief: |
-    This member specifies the ``mutex`` parameter value.
+  member: 'pthread_mutex_t mutex_obj
+
+    '
+- brief: 'This member specifies the ``mutex`` parameter value.
+
+    '
   description: null
-  member: |
-    pthread_mutex_t *mutex
-- brief: |
-    This member provides the object referenced by the ``attr`` parameter.
+  member: 'pthread_mutex_t *mutex
+
+    '
+- brief: 'This member provides the object referenced by the ``attr`` parameter.
+
+    '
   description: null
-  member: |
-    pthread_mutexattr_t attr_obj
-- brief: |
-    This member specifies the ``attr`` parameter value.
+  member: 'pthread_mutexattr_t attr_obj
+
+    '
+- brief: 'This member specifies the ``attr`` parameter value.
+
+    '
   description: null
-  member: |
-    pthread_mutexattr_t *attr
-- brief: |
-    This member contains the return value of the ${../if/pthread-mutex-init:/name} call.
+  member: 'pthread_mutexattr_t *attr
+
+    '
+- brief: 'This member contains the return value of the ${../if/pthread-mutex-init:/name} call.
+
+    '
   description: null
-  member: |
-    int status
+  member: 'int status
+
+    '
 test-context-support: null
 test-description: null
 test-header: null
